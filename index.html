@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+    <title>Line Chart</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script type="text/javascript" src="linechart.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+
+<body>
+
+    <div id="tabs">
+        <ul>
+            <li style="text-align: center;">
+                <a href="#tabs-1">
+                    <h1>12 Years </h1>
+                    <h3>Backtest Performance </h3>
+                </a>
+            </li>
+            <li style="text-align: center;">
+                <a href="#tabs-2">
+                    <h1>2008-2009</h1>
+                    <h3>Bear Market Performance </h3>
+                </a>
+            </li>
+            <li style="text-align: center;">
+                <a href="#tabs-3">
+                    <h1>2010-2020</h1>
+                    <h3>Bull Market Performance </h3>
+                </a>
+            </li>
+            <li style="text-align: center;">
+                <a href="#tabs-4">
+                    <h1>2020-2021</h1>
+                    <h3>Live Trading Performance </h3>
+                </a>
+            </li>
+        </ul>
+        <div style="padding: 0cm;" id="tabs-1"> </div>
+        <div style="padding: 0cm;" id="tabs-2"> </div>
+        <div style="padding: 0cm;" id="tabs-3"> </div>
+        <div style="padding: 0cm;" id="tabs-4"> </div>
+    </div>
+
+    <div id="chart" class="chart" width="960" height="500"></div>
+
+    <script>
+        var config = {
+            mode: "create",
+            elemID: "#chart",
+            data: "data.json", // Your JSON data file path
+            from: "2008",
+            to: "2021"
+        }
+        lineChart(config);
+
+        $(function() {
+            $("#tabs").tabs({
+                active: 0
+            });
+        });
+
+        $('li a').click(function() {
+            config.mode = "update";
+            let idx = $(this).attr("href").substr(6, 1);
+            config.elemID = "#chart" + idx;
+            switch (idx) {
+                case "1":
+                    config.from = "2008";
+                    config.to = "2021";
+                    break;
+                case "2":
+                    config.from = "2008";
+                    config.to = "2009";
+                    break;
+                case "3":
+                    config.from = "2010";
+                    config.to = "2020";
+                    break;
+                case "4":
+                    config.from = "2020";
+                    config.to = "2021";
+                    break;
+            }
+
+            lineChart(config);
+        });
+    </script>
+</body>

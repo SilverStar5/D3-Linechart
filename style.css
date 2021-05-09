@@ -1,0 +1,67 @@
+body {
+    font: 10px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.x.axis path {
+    display: none;
+}
+
+.grid line {
+    stroke: lightgrey;
+    stroke-opacity: 0.7;
+    shape-rendering: crispEdges;
+}
+
+.grid path {
+    stroke-width: 0;
+}
+
+.type1 {
+    fill: none;
+    stroke-width: 2px;
+    stroke: rgb(6, 97, 36);
+}
+
+.type2 {
+    fill: none;
+    stroke-width: 2px;
+    stroke: rgb(104, 5, 87);
+}
+
+.overlay {
+    fill: none;
+    pointer-events: all;
+}
+
+.focus circle {
+    fill: steelblue;
+}
+
+.tooltip1 {
+    fill: rgb(6, 97, 36);
+    stroke: rgb(255, 255, 255);
+}
+
+.tooltip2 {
+    fill: rgb(104, 5, 87);
+    stroke: rgb(255, 255, 255);
+}
+
+.tooltip-label {
+    font-weight: bold;
+    font-size: 10px;
+    fill: white;
+}
+
+.tooltip-value {
+    font-weight: bold;
+    font-size: 14px;
+    fill: white;
+}
