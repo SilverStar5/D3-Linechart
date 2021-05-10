@@ -2,12 +2,12 @@ var svg, chart1, chart2;
 
 function lineChart(config) {
     // set the dimensions and margins of the graph
-    var margin = { top: 30, right: 60, bottom: 30, left: 60 },
+    var margin = { top: 60, right: 60, bottom: 30, left: 60 },
         width = 960 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
     var bisectDate = d3.bisector(function(d) { return d.date; }).left;
 
-    var x, y, t1, t2;
+    var x, y, t1, t2, from, to;
     if (config.mode == 'create') {
         // append the svg object to the body of the page
         svg = d3.select(config.elemID)
@@ -39,8 +39,8 @@ function lineChart(config) {
     d3.json(config.data, function(error, source) {
         if (error) throw error;
 
-        let from = Date.parse(config.from + "-01-01");
-        let to = Date.parse(config.to + "-12-31");
+        from = Date.parse(config.from + "-01-01");
+        to = Date.parse(config.to + "-12-31");
 
         var data = new Array();
         source.forEach(function(d) {
@@ -55,8 +55,9 @@ function lineChart(config) {
         });
 
         x = d3.scaleTime()
-            .domain(d3.extent(data, function(d) { return d.date; }))
-            .range([0, width]);
+            .domain([from, to])
+            .range([0, width])
+            .nice();
 
         y = d3.scaleLinear()
             .domain([0, d3.max(source, function(d) { return Math.max(+d.value1, +d.value2); })])
@@ -83,7 +84,9 @@ function lineChart(config) {
         // Add Y axis
         svg.append("g")
             .attr("class", "axis")
-            .call(d3.axisLeft(y));
+            .call(d3.axisLeft(y)
+                .tickFormat(d3.format(".2s"))
+            );
 
         // add the X gridlines
         svg.append("g")
@@ -139,9 +142,7 @@ function lineChart(config) {
                 .x(function(d) { return x(+d.date) })
                 .y(function(d) { return y(+d.value1) })
             )
-            .attr("fill", "none")
-            .attr("stroke", "steelblue")
-            .attr("stroke-width", 1.5)
+            .attr("class", "type1")
 
         chart2.datum(data)
             .transition()
@@ -150,9 +151,7 @@ function lineChart(config) {
                 .x(function(d) { return x(+d.date) })
                 .y(function(d) { return y(+d.value2) })
             )
-            .attr("fill", "none")
-            .attr("stroke", "steelblue")
-            .attr("stroke-width", 1.5)
+            .attr("class", "type2")
     }
 
     function makeTooltip(data) {
@@ -160,8 +159,9 @@ function lineChart(config) {
             .attr("class", "focus")
             .style("display", "none");
 
-        t1.append("circle")
-            .attr("r", 5);
+        t1.append("path")
+            .attr("class", "tooltip1")
+            .attr("d", function() { return "M 0,0 l -6,-8 12,0 -6,8" });
 
         t1.append("rect")
             .attr("class", "tooltip1")
@@ -186,8 +186,9 @@ function lineChart(config) {
             .attr("class", "focus")
             .style("display", "none");
 
-        t2.append("circle")
-            .attr("r", 5);
+        t2.append("path")
+            .attr("class", "tooltip2")
+            .attr("d", function() { return "M 0,0 l -6,-8 12,0 -6,8" });
 
         t2.append("rect")
             .attr("class", "tooltip2")
@@ -217,29 +218,31 @@ function lineChart(config) {
                 t2.style("display", null);
             })
             .on("mouseout", function() {
-                t1.style("display", "none");
-                t2.style("display", "none");
+                showTooltip(data, new Date(to));
             })
             .on("mousemove", mousemove);
 
+        setTimeout(function(t) {
+            showTooltip(data, new Date(to));
+
+        }, 1000);
+
         function mousemove() {
-            var x0 = x.invert(d3.mouse(this)[0]),
-                i = bisectDate(data, x0, 1),
-                d0 = data[i - 1],
-                d1 = data[i],
-                d = x0 - d0.date > d1.date - x0 ? d1 : d0;
-
-            t1.attr("transform", "translate(" + x(d.date) + "," + y(d.value1) + ")");
-            t1.select(".tooltip-value").text(transK(d.value1));
-            t1.select(".tooltip-label").text("Numin Jade Fund Capital");
-            t2.attr("transform", "translate(" + x(d.date) + "," + y(d.value2) + ")");
-            t2.select(".tooltip-value").text(transK(d.value2));
-            t2.select(".tooltip-label").text("S&P 500");
-
-            function transK(value) {
-                return Math.floor(value / 1000) + "K" + Math.round((value % 1000) / 10);
-            }
+            showTooltip(data, x.invert(d3.mouse(this)[0]));
         }
+    }
 
+    function showTooltip(data, viewDate) {
+        t1.style("display", null);
+        t2.style("display", null);
+
+        let d = data[bisectDate(data, viewDate, 1) - 1];
+
+        t1.attr("transform", "translate(" + x(d.date) + "," + y(d.value1 - 5) + ")");
+        t1.select(".tooltip-value").text(d3.format(".2s")(d.value1));
+        t1.select(".tooltip-label").text("Numin Jade Fund Capital");
+        t2.attr("transform", "translate(" + x(d.date) + "," + y(d.value2 - 5) + ")");
+        t2.select(".tooltip-value").text(d3.format(".2s")(d.value2));
+        t2.select(".tooltip-label").text("S&P 500");
     }
 }
